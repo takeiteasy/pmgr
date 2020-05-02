@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>pmgr</title>
+   <link rel="stylesheet" type="text/css" href="style.css">
+   <script type="text/javascript" src="script.js"></script>
+</head>
+<body>
+  <div id="main" class="cont main">
+    <div id="show_menu" class="label">menu</div>
+  </div>
+  <div id="menu" class="cont menu">
+    <div id="hide_menu" class="label">hide</div>
+    <ul>
+      <% keys.each do |k, v| %>
+        <li>
+          <span class="caret"><%= k %></span>
+          <span data-type="<%= k %>" class="add">+</span>
+          <ul id="<%= k %>_menu" class="nested">
+            <% v.each do |vv| %>
+              <li><span class="object" data-type="<%= k %>" id="<%= vv[:id] %>"><%= vv["title"] %></span></li>
+            <% end %>
+          </ul>
+        </li>
+      <% end %>
+    </ul>
+  </div>
+  <div id="add" class="inactive">
+    <div id="add_close">X</div>
+    <h2 id="add_title">Add to ...</h2>
+    <div class="search_wrap">
+      <form id="search_form" action="/" method="post">
+        <input id="search" type="text" placeholder="Title...">
+        <input id="search_type" name="data" hidden>
+      </form>
+    </div>
+  </div>
+</body>
+</html>
