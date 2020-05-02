@@ -41,21 +41,9 @@ var post = function(page, data, success_cb, mime='application/json;charset=UTF-8
 	xhr.send(data);
 };
 
-var menu_object_cb = function(e) {
-  this.classList.toggle('opened');
-  var type = this.dataset['type'];
-  if (type === 'projects') {
-    var li = document.getElementById('projects_menu').getElementsByTagName('li');
-    for (var i = 0; i < li.length; i++) {
-      if (li[i].firstElementChild === this)
-        continue;
-      li[i].firstElementChild.classList.remove('opened');
-    }
-  }
-};
-
-var draggable = function(el) {
+var new_draggable = function(el) {
   var x = 0, y = 0, dx = 0, dy = 0;
+  var el_id = el.dataset['id'];
   
   var init = function(e, move_fn) {
     e = e || window.event;
@@ -66,20 +54,21 @@ var draggable = function(el) {
     document.onmousemove = move_fn;
   };
   
-  document.getElementById(el.id + '_header').addEventListener('mousedown', function(e) {
+  document.getElementById(el_id + '_header').addEventListener('mousedown', function(e) {
     init(e, start_drag);
   });
   
-  document.getElementById(el.id + '_resize').addEventListener('mousedown', function(e) {
+  document.getElementById(el_id + '_resize').addEventListener('mousedown', function(e) {
     init(e, start_resize);
   });
   
-  document.getElementById(el.id + '_del').addEventListener('click', function(e) {
+  document.getElementById(el_id + '_del').addEventListener('click', function(e) {
     // TOOD: Delete entry from redis
   });
   
-  document.getElementById(el.id + '_close').addEventListener('click', function(e) {
+  document.getElementById(el_id + '_close').addEventListener('click', function(e) {
     el.parentNode.removeChild(el);
+    document.getElementById(el_id + '_menu').classList.toggle('opened');
   });
   
   var update = function(e) {
@@ -127,6 +116,68 @@ var draggable = function(el) {
 };
 
 var new_window = function(id) {
+  var window = document.createElement('div');
+  window.classList = ['window'];
+  window.id = id + '_window';
+  window.dataset['id'] = id
+  var window_cont = document.createElement('div');
+  window_cont.classList = ['window_cont'];
+  var window_head = document.createElement('div');
+  window_head.classList = ['window_head'];
+  window_head.id = id + '_header';
+  var window_title = document.createElement('span');
+  window_title.classList = ['window_title'];
+  window_title.innerHTML = 'test <b>[test]</b>';
+  var window_controls = document.createElement('div');
+  window_controls.classList = ['window_controls'];
+  var window_del = document.createElement('div');
+  window_del.id = id + '_del';
+  window_del.classList = ['window_del'];
+  window_del.innerText = 'del';
+  var window_close = document.createElement('div');
+  window_close.id = id + '_close';
+  window_close.classList = ['window_close button'];
+  window_close.innerText = 'X';
+  var window_body_cont = document.createElement('div');
+  window_body_cont.classList = ['window_body_cont'];
+  var window_body = document.createElement('div');
+  window_body.classList = ['window_body'];
+  var window_resize = document.createElement('div');
+  window_resize.classList = ['window_resize'];
+  window_resize.id = id + '_resize';
+  
+  window_head.appendChild(window_title);
+  window_controls.appendChild(window_del);
+  window_controls.appendChild(window_close);
+  window_head.appendChild(window_controls);
+  window_cont.appendChild(window_head);
+  window_body_cont.appendChild(window_body);
+  window_cont.appendChild(window_body_cont);
+  window.appendChild(window_cont);
+  window.appendChild(window_resize);
+  
+  document.body.appendChild(window);
+  return window;
+};
+
+// TODO: Close window when clicking on menu
+var menu_object_cb = function(e) {
+  if (this.classList.contains('opened')) {
+  } else {
+  }
+  this.classList.toggle('opened');
+  var type = this.dataset['type'];
+  var id = this.dataset['id'];
+  if (type === 'projects') {
+    var li = document.getElementById('projects_menu').getElementsByTagName('li');
+    for (var i = 0; i < li.length; i++) {
+      if (li[i].firstElementChild === this)
+        continue;
+      li[i].firstElementChild.classList.remove('opened');
+    }
+  }
+  // TODO: Merge new_draggable with new_window
+  new_draggable(new_window(id));
 };
 
 document.addEventListener('DOMContentLoaded', function(e) {
@@ -177,8 +228,9 @@ document.addEventListener('DOMContentLoaded', function(e) {
       var li = document.createElement('li');
       var span = document.createElement('span');
       span.classList = ['object'];
-      span.id = data['id'];
+      span.id = data['id'] + '_menu';
       span.dataset['type'] = data['type'];
+      span.dataset['id'] = data['id'];
       span.innerText = data['title'];
       span.addEventListener('click', menu_object_cb);
       li.appendChild(span);
@@ -191,7 +243,4 @@ document.addEventListener('DOMContentLoaded', function(e) {
   var objs = document.getElementsByClassName('object');
   for (var i = 0; i < objs.length; i++)
     objs[i].addEventListener('click', menu_object_cb);
-  
-  var test = document.getElementById('test_window');
-  draggable(test);
 });
