@@ -155,21 +155,24 @@ ul {
   outline: none;
 }
 
-#add_close {
-  position: absolute;
-  top: 2px;
-  right: 2px;
+.button {
   background-color: #3A437B;
   color: #525D94;
-  border-radius: 15px;
-  width: 15px;
-  height: 15px;
-  line-height: 15px;
+  border-radius: 12px;
+  width: 12px;
+  height: 12px;
+  line-height: 12px;
   font-weight: bold;
   font-size: large;
   user-select: none;
   text-align: center;
   cursor: pointer;
+}
+
+#add_close {
+  position: absolute;
+  top: 2px;
+  right: 2px;
 }
 
 .opened:before {
@@ -178,4 +181,83 @@ ul {
 
 .opened {
   font-weight: bold !important;
+}
+
+.window {
+  position: absolute;
+  top: 25px;
+  left: 25px;
+  width: 640px;
+  height: 480px;
+}
+
+.window_cont {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-flow: column;
+}
+
+.window_head {
+  background-color: #525D94;
+  border: 1px solid #3A437B;
+  width: calc(100% - 2px);
+  height: 16px;
+  border-radius: 3px 3px 0 0;
+  cursor: move;
+}
+
+.window_title {
+  font-size: small;
+  color: #878CC8;
+  user-select: none;
+  line-height: -10px;
+  position: absolute;
+  left: 5px;
+  top: 1px;
+}
+
+.window_controls {
+  position: absolute;
+  top: 3px;
+  right: 5px;
+  display: flex;
+}
+
+.window_close {
+  margin-left: 15px;
+}
+
+.window_del {
+  color: #878CC8;
+  line-height: 11px;
+  font-size: smaller;
+  cursor: pointer;
+  user-select: none;
+}
+
+.window_del:hover {
+  font-weight: bold;
+}
+
+.window_body_cont {
+  background-color: white;
+  width: 100%;
+  flex-grow: 1;
+  border-radius: 0 0 3px 3px;
+}
+
+.window_body {
+  width: calc(100% - 10px);
+  height: calc(100% - 10px);
+  margin: 5px;
+}
+
+.window_resize {
+  position: absolute;
+  right: 0px;
+  bottom: 0px;
+  width: 10px;
+  height: 10px;
+  cursor: nwse-resize;
 }

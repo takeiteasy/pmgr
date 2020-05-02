@@ -27,13 +27,30 @@
     </ul>
   </div>
   <div id="add" class="inactive">
-    <div id="add_close">X</div>
+    <div id="add_close" class="button">X</div>
     <h2 id="add_title">Add to ...</h2>
     <div class="search_wrap">
       <form id="search_form" action="/" method="post">
         <input id="search" type="text" placeholder="Title...">
         <input id="search_type" name="data" hidden>
       </form>
+    </div>
+  </div>
+  <div class="window" id="test_window">
+    <div class="window_cont">
+      <div class="window_head" id="test_window_header">
+        <span class="window_title">window title <b>[snippet]</b></span>
+        <div class="window_controls">
+          <div id="test_window_del" class="window_del">del</div>
+          <div id="test_window_close" class="window_close button">X</div>
+        </div>
+      </div>
+      <div class="window_body_cont">
+        <div class="window_body">
+        </div>
+      </div>
+    </div>
+    <div class="window_resize" id="test_window_resize">
     </div>
   </div>
 </body>
