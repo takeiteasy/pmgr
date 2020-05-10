@@ -3,7 +3,7 @@ let emojify = (src) => {
   let m;
   while ((m = /:([a-zA-Z0-9-_]+):/g.exec(src)) !== null) {
     let r = emojis.find(o => o.name === m[1]);
-    src = src.replace(m[0], (r !== undefined ? r.code : `&#58&#58`));
+    src = src.replace(m[0], (r !== undefined ? r.code : `&#58${m[1]}&#58`));
   }
   return src;
 };

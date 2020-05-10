@@ -1,6 +1,5 @@
 let md = (src) => {
   // TODO:
-  // -> Convert to es6 + reduce size
   //  * Sub-lists
   //  * Escapes
   //  * Fix inline markdown
