@@ -7,38 +7,38 @@ Number.prototype.clamp = function(min, max) {
 };
 
 var default_xhr_error = function(page, status, data) {
-	document.open();
-	document.write(data);
-	document.close();
+  document.open();
+  document.write(data);
+  document.close();
 };
 
 var get = function(page, success_cb, failed_cb=default_xhr_error) {
-	var xhr = new XMLHttpRequest();
-	xhr.open('GET', page);
-	xhr.onload = function() {
-		if (xhr.status === 200) {
-			if (success_cb)
-				success_cb(xhr.responseText);
-		} else {
-			if (failed_cb)
-				failed_cb(page, xhr.status, xhr.responseText);
-		}
-	};
-	xhr.send();
+  var xhr = new XMLHttpRequest();
+  xhr.open('GET', page);
+  xhr.onload = function() {
+    if (xhr.status === 200) {
+      if (success_cb)
+        success_cb(xhr.responseText);
+    } else {
+      if (failed_cb)
+        failed_cb(page, xhr.status, xhr.responseText);
+    }
+  };
+  xhr.send();
 };
 
 var post = function(page, data, success_cb, mime='application/json;charset=UTF-8') {
-	var xhr = new XMLHttpRequest();
-	xhr.open('POST', page);
-	xhr.setRequestHeader('Content-Type', mime);
-	xhr.onload = function() {
-		if (xhr.status === 200) {
-			if (success_cb)
-				success_cb(xhr.responseText);
-		} else
-			default_xhr_error(page, xhr.status, xhr.responseText);
-	};
-	xhr.send(data);
+  var xhr = new XMLHttpRequest();
+  xhr.open('POST', page);
+  xhr.setRequestHeader('Content-Type', mime);
+  xhr.onload = function() {
+    if (xhr.status === 200) {
+      if (success_cb)
+        success_cb(xhr.responseText);
+    } else
+      default_xhr_error(page, xhr.status, xhr.responseText);
+  };
+  xhr.send(data);
 };
 
 var new_draggable = function(el) {
@@ -115,69 +115,99 @@ var new_draggable = function(el) {
   };
 };
 
-var new_window = function(id) {
-  var window = document.createElement('div');
-  window.classList = ['window'];
-  window.id = id + '_window';
-  window.dataset['id'] = id
-  var window_cont = document.createElement('div');
-  window_cont.classList = ['window_cont'];
-  var window_head = document.createElement('div');
-  window_head.classList = ['window_head'];
-  window_head.id = id + '_header';
-  var window_title = document.createElement('span');
-  window_title.classList = ['window_title'];
-  window_title.innerHTML = 'test <b>[test]</b>';
-  var window_controls = document.createElement('div');
-  window_controls.classList = ['window_controls'];
-  var window_del = document.createElement('div');
-  window_del.id = id + '_del';
-  window_del.classList = ['window_del'];
-  window_del.innerText = 'del';
-  var window_close = document.createElement('div');
-  window_close.id = id + '_close';
-  window_close.classList = ['window_close button'];
-  window_close.innerText = 'X';
-  var window_body_cont = document.createElement('div');
-  window_body_cont.classList = ['window_body_cont'];
-  var window_body = document.createElement('div');
-  window_body.classList = ['window_body'];
-  var window_resize = document.createElement('div');
-  window_resize.classList = ['window_resize'];
-  window_resize.id = id + '_resize';
+var new_window = function(id, type) {
+  if (type === 'projects') {
+    // TODO: Project window handling
+  } else {
+    var window = document.createElement('div');
+    window.classList = ['window'];
+    window.id = id + '_window';
+    window.dataset['id'] = id
+    var window_cont = document.createElement('div');
+    window_cont.classList = ['window_cont'];
+    var window_head = document.createElement('div');
+    window_head.classList = ['window_head'];
+    window_head.id = id + '_header';
+    var window_title = document.createElement('span');
+    window_title.classList = ['window_title'];
+    window_title.innerHTML = 'test <b>[test]</b>';
+    var window_controls = document.createElement('div');
+    window_controls.classList = ['window_controls'];
+    var window_edit = document.createElement('div');
+    window_edit.id = id + '_edit';
+    window_edit.classList = ['window_ctrl'];
+    window_edit.innerText = 'edit';
+    var window_del = document.createElement('div');
+    window_del.id = id + '_del';
+    window_del.classList = ['window_ctrl'];
+    window_del.innerText = 'del';
+    var window_close = document.createElement('div');
+    window_close.id = id + '_close';
+    window_close.classList = ['window_close button'];
+    window_close.innerText = 'X';
+    var window_body_cont = document.createElement('div');
+    window_body_cont.classList = ['window_body_cont'];
+    var window_body = document.createElement('div');
+    window_body.classList = ['window_body'];
+    var window_resize = document.createElement('div');
+    window_resize.classList = ['window_resize'];
+    window_resize.id = id + '_resize';
   
-  window_head.appendChild(window_title);
-  window_controls.appendChild(window_del);
-  window_controls.appendChild(window_close);
-  window_head.appendChild(window_controls);
-  window_cont.appendChild(window_head);
-  window_body_cont.appendChild(window_body);
-  window_cont.appendChild(window_body_cont);
-  window.appendChild(window_cont);
-  window.appendChild(window_resize);
+    window_head.appendChild(window_title);
+    window_controls.appendChild(window_edit);
+    window_controls.appendChild(window_del);
+    window_controls.appendChild(window_close);
+    window_head.appendChild(window_controls);
+    window_cont.appendChild(window_head);
+    window_body_cont.appendChild(window_body);
+    window_cont.appendChild(window_body_cont);
+    window.appendChild(window_cont);
+    window.appendChild(window_resize);
   
-  document.body.appendChild(window);
-  return window;
+    // TODO: Store width, height, x, y, opened
+    var ww = 640, wh = 480;
+    var dbbcr = document.body.getBoundingClientRect();
+    var wx = dbbcr.width / 2  - ww / 2;
+    var wy = dbbcr.height / 2 - wh / 2;
+  
+    window.style.left   = wx + "px";
+    window.style.top    = wy + "px";
+    window.style.width  = ww + "px";
+    window.style.height = wh + "px";
+  
+    document.body.appendChild(window);
+    
+    get('/api/get/' + type + '/' + id, function(json) {
+      get('/data/' + id + '.md', function(data) {
+        console.log(data);
+      });
+    });
+  
+    return window;
+  }
 };
 
-// TODO: Close window when clicking on menu
 var menu_object_cb = function(e) {
-  if (this.classList.contains('opened')) {
-  } else {
-  }
-  this.classList.toggle('opened');
   var type = this.dataset['type'];
   var id = this.dataset['id'];
   if (type === 'projects') {
+    // TODO: Handle project window opening/closing
     var li = document.getElementById('projects_menu').getElementsByTagName('li');
     for (var i = 0; i < li.length; i++) {
       if (li[i].firstElementChild === this)
         continue;
       li[i].firstElementChild.classList.remove('opened');
     }
+  } else {
+    if (this.classList.contains('opened')) {
+      this.classList.remove('opened');
+      var window_el = document.getElementById(id + '_window');
+      window_el.parentNode.removeChild(window_el);
+    } else {
+      this.classList.add('opened');
+      new_draggable(new_window(id, type)); // TODO: Merge new_draggable with new_window
+    }
   }
-  // TODO: Merge new_draggable with new_window
-  new_draggable(new_window(id));
 };
 
 document.addEventListener('DOMContentLoaded', function(e) {

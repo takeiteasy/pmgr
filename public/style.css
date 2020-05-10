@@ -1,6 +1,6 @@
 * {
-	margin: 0;
-	padding: 0;
+  margin: 0;
+  padding: 0;
 }
 
 html, body {
@@ -12,8 +12,8 @@ img {
 }
 
 div {
-	display: block;
-	font-family: Arial, Meiryo, 'MS PGothic', Helvetica, 'Hiragino Kaku Gothic Pro', AppleGothic, sans-serif;
+  display: block;
+  font-family: Arial, Meiryo, 'MS PGothic', Helvetica, 'Hiragino Kaku Gothic Pro', AppleGothic, sans-serif;
 }
 
 .cont {
@@ -185,10 +185,6 @@ ul {
 
 .window {
   position: absolute;
-  top: 25px;
-  left: 25px;
-  width: 640px;
-  height: 480px;
 }
 
 .window_cont {
@@ -228,15 +224,16 @@ ul {
   margin-left: 15px;
 }
 
-.window_del {
+.window_ctrl {
   color: #878CC8;
-  line-height: 11px;
+  line-height: 10px;
   font-size: smaller;
   cursor: pointer;
   user-select: none;
+  padding-left: 10px;
 }
 
-.window_del:hover {
+.window_ctrl:hover {
   font-weight: bold;
 }
 

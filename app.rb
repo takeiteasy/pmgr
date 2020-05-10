@@ -4,7 +4,7 @@ require 'json'
 require 'securerandom'
 
 $db = Redis.new
-$categories = [:projects, :todos, :snippets]
+$categories = [:projects, :notes]
 
 def menu
   $categories.zip($categories.map do |cat|
@@ -37,4 +37,8 @@ post '/api/del' do
   data_path = "public/data/#{data['id']}.#{ext data['type']}"
   File.delete data_path if File.exist? data_path
   return '{"status": 200}'
+end
+
+get '/api/get/:type/:id' do
+  return $db.hgetall("#{params['type']}:#{params['id']}").to_json
 end
