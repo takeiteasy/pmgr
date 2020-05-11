@@ -1,4 +1,4 @@
-let capitalise = s => s[0].toUpperCase() + s.slice(1);
+let capitalise = s => s[0].toUpperCase() + s.slice(1).toLowerCase();
 
 let clamp = (n, min, max) => Math.min(Math.max(n, min), max);
 
@@ -23,6 +23,25 @@ let post = (url, data, cb, mime='application/json;charset=UTF-8') => {
   xhr.send(data);
 };
 
+let find = (sel, pel = document) => {
+  let p = 'querySelectorAll';
+  if (sel[0] === '#') {
+    p = 'getElementById';
+    sel = sel.slice(1);
+  }
+  return pel[p](sel);
+};
+
+let on = (el, action, cb) => {
+  el.addEventListener(action, cb);
+};
+
+let del = (el) => {
+  el.parentNode.removeChild(el);
+};
+
+let log = console.log;
+
 let new_draggable = (el) => {
   let x = 0, y = 0, dx = 0, dy = 0;
   let el_id = el.dataset['id'];
@@ -36,21 +55,12 @@ let new_draggable = (el) => {
     document.onmousemove = move_fn;
   };
   
-  document.getElementById(el_id + '_header').addEventListener('mousedown', (e) => {
-    init(e, start_drag);
-  });
-  
-  document.getElementById(el_id + '_resize').addEventListener('mousedown', (e) => {
-    init(e, start_resize);
-  });
-  
-  document.getElementById(el_id + '_del').addEventListener('click', (e) => {
-    // TOOD: Delete entry from redis
-  });
-  
-  document.getElementById(el_id + '_close').addEventListener('click', (e) => {
-    el.parentNode.removeChild(el);
-    document.getElementById(el_id + '_menu').classList.toggle('opened');
+  on(find(`#${el_id}_header`), 'mousedown', e => init(e, start_drag));
+  on(find(`#${el_id}_resize`), 'mousedown', e => init(e, start_resize));
+  on(find(`#${el_id}_del`), 'click', (e) => {}); // TODO: Delete entry from redis/fs
+  on(find(`#${el_id}_close`), 'click', (e) => {
+    del(el);
+    find(`#${el_id}_menu`).classList.toggle('opened');
   });
   
   let update = (e) => {
@@ -174,7 +184,7 @@ let menu_object_cb = (e) => {
   let id = e.target.dataset['id'];
   if (type === 'projects') {
     // TODO: Handle project window opening/closing
-    let li = document.getElementById('projects_menu').getElementsByTagName('li');
+    let li = find('#projects_menu').getElementsByTagName('li');
     for (let i = 0; i < li.length; i++) {
       if (li[i].firstElementChild === e.target)
         continue;
@@ -183,8 +193,7 @@ let menu_object_cb = (e) => {
   } else {
     if (e.target.classList.contains('opened')) {
       e.target.classList.remove('opened');
-      let window_el = document.getElementById(id + '_window');
-      window_el.parentNode.removeChild(window_el);
+      del(find(`#${id}_window`));
     } else {
       e.target.classList.add('opened');
       new_draggable(new_window(id, type)); // TODO: Merge new_draggable with new_window
@@ -192,30 +201,30 @@ let menu_object_cb = (e) => {
   }
 };
 
-document.addEventListener('DOMContentLoaded', (e) => {
-  for (var o of document.getElementsByClassName('caret'))
-    o.addEventListener('click', (e) => {
+on(document, 'DOMContentLoaded', (e) => {
+  for (var o of find('.caret'))
+    on(o, 'click', (e) => {
       e.target.parentElement.querySelector('.nested').classList.toggle('inactive');
       e.target.classList.toggle('caret-down');
     });
   
-  let menu = document.getElementById('menu');
-  document.getElementById('show_menu').addEventListener('click', (e) => {
+  let menu = find('#menu');
+  on(find('#show_menu'), 'click', (e) => {
     menu.style.visibility = 'visible';
   });
   
-  document.getElementById('hide_menu').addEventListener('click', (e) => {
+  on(find('#hide_menu'), 'click', (e) => {
     menu.style.visibility = 'hidden';
   });
   
-  let add = document.getElementsByClassName('add');
-  let add_box = document.getElementById('add');
-  let add_title = document.getElementById('add_title');
-  let search = document.getElementById('search');
-  let search_type = document.getElementById('search_type');
+  let add = find('.add');
+  let add_box = find('#add');
+  let add_title = find('#add_title');
+  let search = find('#search');
+  let search_type = find('#search_type');
   
   for (let o of add)
-    o.addEventListener('click', (e) => {
+    on(o, 'click', (e) => {
       let type = e.target.dataset['type'];
       add_title.innerText = "Add to " + capitalise(type);
       search_type.value = type;
@@ -223,10 +232,10 @@ document.addEventListener('DOMContentLoaded', (e) => {
         add_box.classList.remove('inactive');
     });
 
-  document.getElementById('add_close').addEventListener('click', (e) => {
+  on(find('#add_close'), 'click', (e) => {
     add_box.classList.toggle('inactive');
   });
-  search.addEventListener('keydown', (e) => {
+  on(search, 'keydown', (e) => {
     if (e.keyCode != 13)
       return;
 
@@ -244,14 +253,14 @@ document.addEventListener('DOMContentLoaded', (e) => {
       span.dataset['type'] = data['type'];
       span.dataset['id'] = data['id'];
       span.innerText = data['title'];
-      span.addEventListener('click', menu_object_cb);
+      on(span, 'click', menu_object_cb);
       li.appendChild(span);
-      document.getElementById(data['type'] + '_menu').appendChild(li);
+      find(`#${data['type']}_menu`).appendChild(li);
       add_box.classList.toggle('inactive');
     });
     search.value = '';
   });
   
-  for (var o of document.getElementsByClassName('object'))
-    o.addEventListener('click', menu_object_cb);
+  for (var o of find('.object'))
+    on(o, 'click', menu_object_cb);
 });
