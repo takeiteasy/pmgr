@@ -30,7 +30,7 @@ let find = (sel, pel = document) => {
     sel = sel.slice(1);
   }
   let ret = pel[p](sel);
-  return ret.length === undefined ? ret : (ret.length === 1 ? ret[0] : ret);
+  return ret.length === undefined ? ret : (ret.length === 1 ? ret[0] : (ret.length === 0 ? false : ret));
 };
 
 let on = (el, action, cb) => {
@@ -45,10 +45,10 @@ let dom = (t, c = false, v = false) => `<${t}${v ? ' ' + Object.entries(v).map(a
 
 let log = console.log;
 
-let create_window = (id, w=0, h=0) => {
+let create_window = (id, title, w=0, h=0) => {
   let d = dom('div',
     dom('div',
-      dom('div', 'test [test]', {'class': 'title-bar-text'}) +
+      dom('div', title || 'Untitled', {'class': 'title-bar-text'}) +
       dom('div', dom('button', '', {'aria-label': 'Close'}), {'class': 'title-bar-controls'}),
     {'class': 'title-bar', 'id': id}) +
     dom('div', '', {'class': 'window-body'}) +
@@ -58,6 +58,9 @@ let create_window = (id, w=0, h=0) => {
   let el = find('.window#' + id);
   on(find('.title-bar-controls button', el), 'click', (e) => {
     del(el);
+    let mo = find('.tree-view-li#' + id);
+    if (mo)
+      mo.classList.toggle('opened');
   });
   if (w !== 0 && h !== 0) {
     el.style.width  = w + "px";
@@ -128,6 +131,35 @@ let draggable = (el) => {
 
 let menu_cb = (e) => {
   let type = e.target.dataset['type'];
+  let ttype = capitalise(type.slice(0, -1));
+  if (e.target.id === "") {
+    let w = find('.window#add_new');
+    if (w) {
+      find('label#add-new-lbl', w).innerHTML = `Enter ${ttype} Title:`;
+      find('input#add-new-item', w).dataset['type'] = type;
+    } else {
+      w = create_window("add_new", "Add New " + ttype, 300, 80);
+      find('.window-body', w).innerHTML = dom('div',
+                                            dom('label', `Enter ${ttype} Title:`, {'for': 'add-new-item', 'id': 'add-new-lbl'}) +
+                                            dom('input', false, {'type': 'text', 'data-type': type, 'id': 'add-new-item', 'placeholder': 'Title...'}),
+                                          {'class': 'field-row-stacked'})
+      on(find('#add-new-item'), 'keydown', (e) => {
+        if (e.keyCode != 13)
+          return;
+        post('/api/add',
+        JSON.stringify({
+          type: e.target.dataset['type'],
+          title: e.target.value
+        }), (json) => {
+          data = JSON.parse(json);
+          find(`#${data['type']}_ul`).lastElementChild.insertAdjacentHTML('beforebegin', dom('li', data['title'], {'id': 'id' + data['id'], 'class': 'tree-view-li', 'data-type': data['type']}));
+          on(find('.tree-view-li#id' + data['id']), 'click', menu_cb);
+          del(find('.window#add_new'));
+        });
+      });
+    }
+    return;
+  }
   if (type === 'projects')
     return; // TODO
   if (e.target.classList.contains('opened')) {

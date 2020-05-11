@@ -21,11 +21,11 @@
           <li>
             <details open>
               <summary><%= k.capitalize() %></summary>
-              <ul>
+              <ul id="<%= k %>_ul">
                 <% v.each do |vv| %>
                   <li id="id<%= vv[:id] %>" data-type="<%= k %>" class="tree-view-li"><%= vv["title"] %></li>
                 <% end %>
-                <li id="new_<%= k %>">New <%= k[0..-2].capitalize() %></li>
+                <li class="tree-view-li" data-type="<%= k %>">New <%= k[0..-2].capitalize() %></li>
               </ul>
             </details>
           </li>
