@@ -10,38 +10,29 @@
       <link rel="stylesheet" href="md.css">
       <script type="text/javascript" src="md.js"></script>
       <script type="text/javascript" src="emoji.js"></script>
+      <link rel="stylesheet" type="text/css" href="98.css">
       <link rel="stylesheet" type="text/css" href="pmgr.css">
       <script type="text/javascript" src="pmgr.js"></script>
   </head>
   <body>
-    <div id="main" class="cont main">
-      <div id="show_menu" class="label">menu</div>
-    </div>
-    <div id="menu" class="cont menu">
-      <div id="hide_menu" class="label">hide</div>
-      <ul>
+    <aside>
+      <ul class="tree-view">
         <% keys.each do |k, v| %>
           <li>
-            <span class="caret"><%= k %></span>
-            <span data-type="<%= k %>" class="add">+</span>
-            <ul id="<%= k %>_menu" class="nested">
-              <% v.each do |vv| %>
-                <li><span class="object" data-id="<%= vv[:id] %>" data-type="<%= k %>" id="<%= vv[:id] %>_menu"><%= vv["title"] %></span></li>
-              <% end %>
-            </ul>
+            <details open>
+              <summary><%= k.capitalize() %></summary>
+              <ul>
+                <% v.each do |vv| %>
+                  <li id="id<%= vv[:id] %>" data-type="<%= k %>" class="tree-view-li"><%= vv["title"] %></li>
+                <% end %>
+                <li id="new_<%= k %>">New <%= k[0..-2].capitalize() %></li>
+              </ul>
+            </details>
           </li>
         <% end %>
       </ul>
-    </div>
-    <div id="add" class="inactive">
-      <div id="add_close" class="button">X</div>
-      <h2 id="add_title">Add to ...</h2>
-      <div class="search_wrap">
-        <form id="search_form" action="/" method="post">
-          <input id="search" type="text" placeholder="Title...">
-          <input id="search_type" name="data" hidden>
-        </form>
-      </div>
-    </div>
+    </aside>
+    <main>
+    </main>
   </body>
 </html>

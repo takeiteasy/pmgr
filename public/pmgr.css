@@ -3,254 +3,86 @@
   padding: 0;
 }
 
-html, body {
-  height: 100%;
-}
-
 img {
   border: 0;
 }
 
 div {
   display: block;
-  font-family: Arial, Meiryo, 'MS PGothic', Helvetica, 'Hiragino Kaku Gothic Pro', AppleGothic, sans-serif;
 }
 
-.cont {
-  position: absolute;
-  top: 10px;
-  border-radius: 3px;
+html, body {
+  margin: 0;
+  padding: 0;
+  background: #c0c0c0;
+  height: 100%;
 }
 
-.menu {
-  visibility: hidden;
-  right: 8px;
-  width: calc(10% - 10px);
-  max-height: calc(70% - 20px);
-  background-color: #525D94;
-  border: 1px solid #3A437B;
-  overflow-y: scroll;
-  overflow-x: hidden;
-  overflow-wrap: anywhere;
-  padding: 0px 5px 5px 0px;
-  user-select: none;
+main {
+  margin-left: 240px;
+  margin-bottom: 60px;
+  overflow-y: hidden;
 }
 
-.main {
-  left: 10px;
-  width: calc(100% - 20px);
-  height: calc(100% - 20px);
-  background-color: #D5CEC5;
-	border: 1px solid #78644F;
-}
-
-.label {
-  position: absolute;
-  top: -1px;
-  right: -1px;
-  padding: 2px 4px 2px 4px;
-  border-radius: 3px;
-  user-select: none;
-  cursor: pointer;
-}
-
-.main > .label {
-  background-color: #78644F;
-  color: #D5CEC5;
-}
-
-.menu > .label {
-  background-color: #3A437B;
-  color: #525D94;
-}
-
-ul {
-  list-style-type: none;
-}
-
-.menu > ul {
-  margin: 10px 0px 0px 10px;
-}
-
-.caret {
-  font-weight: bold;
-  cursor: pointer;
-  color: #878CC8;
-}
-
-.caret::before {
-  content: "-";
-  color: black;
-  display: inline-block;
-  margin-right: 6px;
-  color: inherit;
-}
-
-.caret-down::before {
-  content: "+";
-}
-
-.nested {
-  display: block;
-}
-
-.inactive {
-  display: none !important;
-}
-
-.object {
-  margin-left: 10px;
-  cursor: pointer;
-  color: #C3C5DF;
-}
-
-.object:hover {
-  font-weight: bold;
-}
-
-.add {
-  color: white;
-  margin-left: -1px;
-}
-
-.add:hover {
-  font-weight: bold;
-  cursor: pointer;
-}
-
-#add {
-  position: absolute;
-  left: 15px;
-  bottom: 13px;
-  width: calc(20% - 10px);
-  height: 75px;
-  background-color: #525D94;
-  border: 1px solid #3A437B;
+aside {
+  width: 200px;
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  padding: 8px;
   display: flex;
-  flex-flow: column;
+  align-items: stretch;
 }
 
-#add_title {
-  color: #878CC8;
-  padding: 5px;
+aside .tree-view {
+  width: 100%;
+  overflow-y: scroll;
 }
 
-.search_wrap {
-  background-color: white;
-  width: 98%;
-  margin: 0 auto;
-  flex-grow: 1;
-  margin-bottom: 5px;
+details {
+  margin-top: 12px;
 }
 
-#search {
-  background-color: white;
-  border: none;
-  width: calc(100% - 10px);
-  padding: 5px 0 0 5px;
-  font-size: large;
-}
-
-#search:focus {
-  outline: none;
-}
-
-.button {
-  background-color: #3A437B;
-  color: #525D94;
-  border-radius: 12px;
-  width: 12px;
-  height: 12px;
-  line-height: 12px;
-  font-weight: bold;
-  font-size: large;
+summary {
   user-select: none;
-  text-align: center;
   cursor: pointer;
+  display: inline;
 }
 
-#add_close {
-  position: absolute;
-  top: 2px;
-  right: 2px;
+summary::-webkit-details-marker {
+    display: none;
 }
 
-.opened:before {
-  content: "* ";
+details[open] summary {
+  margin-bottom: 8px;
 }
 
-.opened {
+.title-bar-text {
+  user-select: none;
+}
+
+.tree-view li {
+  cursor: pointer;
+  user-select: none;
+}
+
+.tree-view li .opened {
   font-weight: bold !important;
 }
 
 .window {
   position: absolute;
+  width: 640px;
+  height: 480px;
 }
 
-.window_cont {
-  width: 100%;
-  height: 100%;
-  display: flex;
-  flex-flow: column;
+.window-center {
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
 }
 
-.window_head {
-  background-color: #525D94;
-  border: 1px solid #3A437B;
-  width: calc(100% - 2px);
-  height: 16px;
-  border-radius: 3px 3px 0 0;
-  cursor: move;
-}
-
-.window_title {
-  font-size: small;
-  color: #878CC8;
-  user-select: none;
-  line-height: -10px;
-  position: absolute;
-  left: 5px;
-  top: 1px;
-}
-
-.window_controls {
-  position: absolute;
-  top: 3px;
-  right: 5px;
-  display: flex;
-}
-
-.window_close {
-  margin-left: 15px;
-}
-
-.window_ctrl {
-  color: #878CC8;
-  line-height: 10px;
-  font-size: smaller;
-  cursor: pointer;
-  user-select: none;
-  padding-left: 10px;
-}
-
-.window_ctrl:hover {
-  font-weight: bold;
-}
-
-.window_body_cont {
-  background-color: white;
-  width: 100%;
-  flex-grow: 1;
-  border-radius: 0 0 3px 3px;
-}
-
-.window_body {
-  width: calc(100% - 10px);
-  height: calc(100% - 10px);
-  margin: 5px;
-}
-
-.window_resize {
+.window-resize {
   position: absolute;
   right: 0px;
   bottom: 0px;
