@@ -90,3 +90,61 @@ details[open] summary {
   height: 10px;
   cursor: nwse-resize;
 }
+
+.window-body {
+  height: calc(100% - 36px);
+}
+
+.window-content-container {
+  height: 100%;
+  width: 100%;
+  display: block;
+  background: var(--button-highlight);
+  box-shadow: var(--border-field);
+  margin: 0;
+}
+
+.window-actions {
+  position: absolute;
+  top: 24px;
+  right: 3px;
+  width: 60px;
+  height: 30px;
+}
+
+.window-actions button[aria-label="Edit"] {
+  margin-left: 2px;
+  background-image: url("icon/edit.png");
+  background-repeat: no-repeat;
+  background-position: top 3px left 4px;
+  display: none;
+}
+
+.window-actions button[aria-label="Delete"] {
+  margin-left: 2px;
+  background-image: url("icon/delete.png");
+  background-repeat: no-repeat;
+  background-position: top 3px left 4px;
+  display: none;
+}
+
+.window-actions button {
+  width: 16px;
+  min-width: 0px !important;
+  float: right;
+  margin: 2px;
+}
+
+.window-actions:hover button {
+  display: inline-block;
+}
+
+.window-content {
+  width: calc(100% - var(--element-spacing) * 2);
+  height: calc(100% - var(--element-spacing) * 2);
+  padding: var(--element-spacing);
+}
+
+.window-editbox {
+  display: none;
+}
