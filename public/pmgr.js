@@ -190,6 +190,8 @@ let menu_cb = (e) => {
       let wmdb = find('.window-mdbox#' + e.target.id);
       let web = find('.window-editbox#' + e.target.id);
       if (getComputedStyle(wmdb, null).display === 'none') {
+        let src = web.innerText;
+        wmdb.innerHTML = md(emojify(src));
         wmdb.style.display = 'block';
         web.style.display = 'none';
       } else {

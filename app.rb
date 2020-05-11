@@ -8,8 +8,8 @@ $categories = [:projects, :notes]
 
 def menu
   $categories.zip($categories.map do |cat|
-    $db.zrange(cat, 0, -1).map do |id|
-      {:id => id}.merge $db.hgetall("#{cat}:#{id}")
+    $db.smembers(cat).map do |id|
+      {:id => id}.merge $db.hgetall(id)
     end
   end).to_h
 end
@@ -26,19 +26,18 @@ post '/api/add' do
   data = JSON.parse request.body.read
   id = SecureRandom.uuid
   data['id'] = id
-  $db.hmset "#{data["type"]}:#{id}", :title, data['title']
-  $db.zadd data['type'], 0, id
+  $db.hmset id, :title, data['title'], :type, data['type']
+  $db.sadd data['type'], id
   File.open("public/data/#{id}.#{ext data['type']}", 'w') {}
   return data.to_json
 end
 
 post '/api/del' do
-  data = JSON.parse request.body.read
-  data_path = "public/data/#{data['id']}.#{ext data['type']}"
-  File.delete data_path if File.exist? data_path
-  return '{"status": 200}'
 end
 
-get '/api/get/:type/:id' do
-  return $db.hgetall("#{params['type']}:#{params['id']}").to_json
+post '/api/update/:id' do
+end
+
+get '/api/get/:id' do
+  return $db.hgetall(params['id']).to_json
 end

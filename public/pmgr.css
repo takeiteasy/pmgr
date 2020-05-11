@@ -148,3 +148,7 @@ details[open] summary {
 .window-editbox {
   display: none;
 }
+
+.window-mdbox {
+  font-family: "Lucida Sans Unicode", "Lucida Grande", sans-serif;
+}

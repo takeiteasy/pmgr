@@ -5,25 +5,22 @@ db = Redis.new
 
 db.flushall
 
-types = [:projects, :todos, :snippets]
+types = [:projects, :notes]
 
-for j in 0..2
-  type = types[j]
+types.each do |type|
   for i in 1..10
     id = SecureRandom.uuid
-
-    pid = "#{type}:#{id}"
-
-    db.hmset pid, :title, "test#{i}"
-
-    db.zadd type, 0, id
+    
+    db.hmset id, :title, "test#{i}", :type, type
+    
+    db.sadd type, id
   end
 end
 
-for j in 0..2
-  type = types[j]
-  db.zrange(type, 0, -1).each do |x|
-    puts "#{type}:#{x}"
-    puts db.hget "#{type}:#{x}", :title
+types.each do |type|
+  db.smembers(type).each do |x|
+    puts "#{type}, #{x}"
+    
+    puts db.hgetall x
   end
 end
