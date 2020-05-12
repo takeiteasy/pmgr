@@ -43,6 +43,9 @@ let del = (el) => {
 
 let dom = (t, c = false, v = false) => `<${t}${v ? ' ' + Object.entries(v).map(a => a[0] + '="' + a[1] + '"').join(' ') : ''}${c ? '>' + c + '</' + t + '>' : '/>'}`;
 
+let rpx = x => x.slice(0, -2)
+let rid = x => x.slice(2)
+
 let log = console.log;
 
 let create_window = (id, title, w=0, h=0) => {
@@ -124,6 +127,16 @@ let make_draggable = (el) => {
   };
   
   let end = (e) => {
+    if (e.target.id !== '') {
+      let cs = getComputedStyle(el, null);
+      post(`/api/update/${rid(e.target.id)}/pos`, JSON.stringify({
+                                                    'xpos':   rpx(el.style.left),
+                                                    'ypos':   rpx(el.style.top),
+                                                    'width':  rpx(cs.width),
+                                                    'height': rpx(cs.height)
+                                                  }), (data) => {
+      });
+    }
     document.onmouseup = undefined;
     document.onmousemove = undefined;
   };
@@ -146,7 +159,10 @@ let menu_cb = (e) => {
       on(find('#add-new-item'), 'keydown', (e) => {
         if (e.keyCode != 13)
           return;
-        post('/api/add', JSON.stringify({type: e.target.dataset['type'], title: e.target.value}), (json) => {
+        post('/api/add', JSON.stringify({
+                           'type':  e.target.dataset['type'],
+                           'title': e.target.value
+                         }), (json) => {
           data = JSON.parse(json);
           find(`#${data['type']}_ul`).lastElementChild.insertAdjacentHTML('beforebegin', dom('li', data['title'], {'id': 'id' + data['id'], 'class': 'tree-view-li', 'data-type': data['type']}));
           on(find('.tree-view-li#id' + data['id']), 'click', menu_cb);
@@ -162,18 +178,28 @@ let menu_cb = (e) => {
     e.target.classList.remove('opened');
     del(find('.window#' + e.target.id));
   } else {
-    let raw_id = e.target.id.slice(2)
-    get('/api/get/' + raw_id, (data) => {
-      if (data === '{}')
+    let raw_id = rid(e.target.id)
+    get('/api/get/' + raw_id, (edata) => {
+      if (edata === '{}')
         return; // ID ERROR
-      get(`/data/${raw_id}.md`, (data) => {
-        if (data.length === 0)
-          data = ' ';
-        var md_data = md(emojify(data));
-        
+      edata = JSON.parse(edata);
+      get(`/data/${raw_id}.md`, (fdata) => {
+        if (fdata.length === 0)
+          fdata = ' ';
+        var md_data = md(emojify(fdata));
         e.target.classList.add('opened');
-        let w = create_window(e.target.id);
+        let w = create_window(e.target.id, `${edata['title']}: [${capitalise(edata['type'].slice(0, -1))}]`);
         make_draggable(w);
+        
+        if ('xpos'   in edata)
+          w.style.left   = edata['xpos'] + "px";
+        if ('ypos'   in edata)
+          w.style.top    = edata['ypos'] + "px";
+        if ('width'  in edata)
+          w.style.width  = edata['width'] + "px";
+        if ('height' in edata)
+          w.style.height = edata['height'] + "px";
+        
         w.insertAdjacentHTML('beforeend', dom('div',
                                             dom('button', '', {'id': e.target.id, 'class': 'window-edit-btn', 'aria-label': 'Edit'}) +
                                             dom('button', '', {'id': e.target.id, 'class': 'window-delete-btn', 'aria-label': 'Delete'}) +
@@ -181,7 +207,7 @@ let menu_cb = (e) => {
                                           {'class': 'window-actions'}));
         find('.window-body', w).innerHTML = dom('div',
                                               dom('div', md_data, {'class': 'window-content window-mdbox', 'id': e.target.id}) +
-                                              dom('div', data.replace(/\n/g, '<br/>'), {'class': 'window-content window-editbox', 'id': e.target.id, 'contenteditable': 'true'}),
+                                              dom('div', fdata.replace(/\n/g, '<br/>'), {'class': 'window-content window-editbox', 'id': e.target.id, 'contenteditable': 'true'}),
                                             {'id': e.target.id, 'class': 'window-content-container'});
         on(find('.window-delete-btn#' + e.target.id, w), 'click', (e) => {
           if (find('#check_del'))
@@ -194,7 +220,7 @@ let menu_cb = (e) => {
                                                 dom('button', 'Cancel', {'id': e.target.id, 'class': 'check_del_cancel'}),
                                               {'class': 'field-row'});
           on(find('.check_del_ok#' + e.target.id), 'click', (e) => {
-            get('/api/del/' + e.target.id.slice(2), (data) => {
+            get('/api/del/' + rid(e.target.id), (data) => {
               let el;
               while ((el = find('#' + e.target.id)))
                 del(el);
@@ -214,7 +240,7 @@ let menu_cb = (e) => {
           let web = find('.window-editbox#' + e.target.id);
           if (getComputedStyle(wmdb, null).display === 'none') { // edit mode -> md mode
             let src = web.innerText;
-            post('/api/save/' + e.target.id.slice(2), src, (data) => { 
+            post('/api/save/' + rid(e.target.id), src, (data) => { 
             });
             wmdb.innerHTML = md(emojify(src));
             wmdb.style.display = 'block';

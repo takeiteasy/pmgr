@@ -5,6 +5,7 @@ require 'securerandom'
 
 $db = Redis.new
 $categories = [:projects, :notes]
+$valid_keys = [:title, :type, :xpos, :ypos, :width, :height]
 
 def menu
   $categories.zip($categories.map do |cat|
@@ -53,7 +54,17 @@ post '/api/save/:id' do
   return '' # TODO: Proper API returns {status: X, ...}
 end
 
-post '/api/update/:id/:key/:value' do
+get '/api/update/:id/:key/:value' do
+  puts params
+end
+
+post '/api/update/:id/pos' do
+  id = params['id']
+  data = JSON.parse request.body.read
+  data.each do |k, v|
+    $db.hmset id, k, v if $valid_keys.include? k.to_sym
+  end
+  return ''
 end
 
 get '/api/get/:id' do
