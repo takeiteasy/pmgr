@@ -159,3 +159,9 @@ details[open] summary {
 #check_del .field-row {
   justify-content: flex-end;
 }
+
+.sticky {
+  top: 5px !important;
+  left: unset !important;
+  right: 5px !important;
+}

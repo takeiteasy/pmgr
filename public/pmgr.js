@@ -142,6 +142,13 @@ let make_draggable = (el) => {
   };
 };
 
+let dupe = el => el.parentNode.replaceChild(el.cloneNode(true), el);
+
+let unmake_draggable = (el) => {
+  dupe(find('.title-bar', el));
+  dupe(find('.window-resize', el));
+};
+
 let menu_cb = (e) => {
   let type = e.target.dataset['type'];
   let ttype = capitalise(type.slice(0, -1));
@@ -209,6 +216,15 @@ let menu_cb = (e) => {
                                               dom('div', md_data, {'class': 'window-content window-mdbox', 'id': e.target.id}) +
                                               dom('div', fdata.replace(/\n/g, '<br/>'), {'class': 'window-content window-editbox', 'id': e.target.id, 'contenteditable': 'true'}),
                                             {'id': e.target.id, 'class': 'window-content-container'});
+        on(find('.window-pin-btn#' + e.target.id, w), 'click', (e) => {
+          if (w.classList.contains('sticky')) {
+            make_draggable(w);
+            w.classList.remove('sticky');
+          } else {
+            unmake_draggable(w);
+            w.classList.add('sticky');
+          }
+        });
         on(find('.window-delete-btn#' + e.target.id, w), 'click', (e) => {
           if (find('#check_del'))
             return;
