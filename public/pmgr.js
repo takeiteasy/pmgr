@@ -29,8 +29,8 @@ let find = (sel, pel = document) => {
     p = 'getElementById';
     sel = sel.slice(1);
   }
-  let ret = pel[p](sel);
-  return ret.length === undefined ? ret : (ret.length === 1 ? ret[0] : (ret.length === 0 ? false : ret));
+  let ret = pel[p](sel) || false;
+  return !ret ? ret : (ret.length === undefined ? ret : (ret.length === 1 ? ret[0] : (ret.length === 0 ? false : ret)));
 };
 
 let on = (el, action, cb) => {
@@ -69,7 +69,7 @@ let create_window = (id, title, w=0, h=0) => {
   return el;
 };
 
-let draggable = (el) => {
+let make_draggable = (el) => {
   let x = 0, y = 0, dx = 0, dy = 0;
   
   let init = (e, move_fn) => {
@@ -146,11 +146,7 @@ let menu_cb = (e) => {
       on(find('#add-new-item'), 'keydown', (e) => {
         if (e.keyCode != 13)
           return;
-        post('/api/add',
-        JSON.stringify({
-          type: e.target.dataset['type'],
-          title: e.target.value
-        }), (json) => {
+        post('/api/add', JSON.stringify({type: e.target.dataset['type'], title: e.target.value}), (json) => {
           data = JSON.parse(json);
           find(`#${data['type']}_ul`).lastElementChild.insertAdjacentHTML('beforebegin', dom('li', data['title'], {'id': 'id' + data['id'], 'class': 'tree-view-li', 'data-type': data['type']}));
           on(find('.tree-view-li#id' + data['id']), 'click', menu_cb);
@@ -166,38 +162,69 @@ let menu_cb = (e) => {
     e.target.classList.remove('opened');
     del(find('.window#' + e.target.id));
   } else {
-    e.target.classList.add('opened');
-    let w = create_window(e.target.id);
-    draggable(w);
-    w.insertAdjacentHTML('beforeend', dom('div',
-                                        dom('button', '', {'id': e.target.id, 'class': 'window-edit-btn', 'aria-label': 'Edit'}) +
-                                        dom('button', '', {'id': e.target.id, 'class': 'window-delete-btn', 'aria-label': 'Delete'}),
-                                      {'class': 'window-actions'}));
-    find('.window-body', w).innerHTML = dom('div',
-                                          dom('div', 'MARKDOWN', {'class': 'window-content window-mdbox', 'id': e.target.id}) +
-                                          dom('div', 'EDIT', {'class': 'window-content window-editbox', 'id': e.target.id, 'contenteditable': 'true'}),
-                                        {'id': e.target.id, 'class': 'window-content-container'});
-    on(find('.window-delete-btn#' + e.target.id, w), 'click', (e) => {
-      // TODO: Delete item from redis
-    });
-    let web = find('.window-edit-btn#' + e.target.id, w);
-    on(web, 'paste', (e) => {
-      e.stopPropagation();
-      e.preventDefault();
-      window.document.execCommand('insertText', false, (e.clipboardData || window.clipboardData).getData('Text'));
-    });
-    on(web, 'click', (e) => {
-      let wmdb = find('.window-mdbox#' + e.target.id);
-      let web = find('.window-editbox#' + e.target.id);
-      if (getComputedStyle(wmdb, null).display === 'none') {
-        let src = web.innerText;
-        wmdb.innerHTML = md(emojify(src));
-        wmdb.style.display = 'block';
-        web.style.display = 'none';
-      } else {
-        web.style.display = 'block';
-        wmdb.style.display = 'none';
-      }
+    let raw_id = e.target.id.slice(2)
+    get('/api/get/' + raw_id, (data) => {
+      if (data === '{}')
+        return; // ID ERROR
+      get(`/data/${raw_id}.md`, (data) => {
+        if (data.length === 0)
+          data = ' ';
+        var md_data = md(emojify(data));
+        
+        e.target.classList.add('opened');
+        let w = create_window(e.target.id);
+        make_draggable(w);
+        w.insertAdjacentHTML('beforeend', dom('div',
+                                            dom('button', '', {'id': e.target.id, 'class': 'window-edit-btn', 'aria-label': 'Edit'}) +
+                                            dom('button', '', {'id': e.target.id, 'class': 'window-delete-btn', 'aria-label': 'Delete'}) +
+                                            dom('button', '', {'id': e.target.id, 'class': 'window-pin-btn', 'aria-label': 'Pin'}),
+                                          {'class': 'window-actions'}));
+        find('.window-body', w).innerHTML = dom('div',
+                                              dom('div', md_data, {'class': 'window-content window-mdbox', 'id': e.target.id}) +
+                                              dom('div', data.replace(/\n/g, '<br/>'), {'class': 'window-content window-editbox', 'id': e.target.id, 'contenteditable': 'true'}),
+                                            {'id': e.target.id, 'class': 'window-content-container'});
+        on(find('.window-delete-btn#' + e.target.id, w), 'click', (e) => {
+          if (find('#check_del'))
+            return;
+          var w = create_window("check_del", "Confirm", 300, 86);
+          find('.window-body', w).innerHTML = dom('p', 'Are you sure you want to delete this?') +
+                                              dom('br') +
+                                              dom('section',
+                                                dom('button', 'OK', {'id': e.target.id, 'class': 'check_del_ok'}) +
+                                                dom('button', 'Cancel', {'id': e.target.id, 'class': 'check_del_cancel'}),
+                                              {'class': 'field-row'});
+          on(find('.check_del_ok#' + e.target.id), 'click', (e) => {
+            get('/api/del/' + e.target.id.slice(2), (data) => {
+              let el;
+              while ((el = find('#' + e.target.id)))
+                del(el);
+              del(find('#check_del'));
+            });
+          });
+          on(find('.check_del_cancel#' + e.target.id), 'click', e => del(w));
+        });
+        let web = find('.window-edit-btn#' + e.target.id, w);
+        on(web, 'paste', (e) => {
+          e.stopPropagation();
+          e.preventDefault();
+          window.document.execCommand('insertText', false, (e.clipboardData || window.clipboardData).getData('Text'));
+        });
+        on(web, 'click', (e) => {
+          let wmdb = find('.window-mdbox#' + e.target.id);
+          let web = find('.window-editbox#' + e.target.id);
+          if (getComputedStyle(wmdb, null).display === 'none') { // edit mode -> md mode
+            let src = web.innerText;
+            post('/api/save/' + e.target.id.slice(2), src, (data) => { 
+            });
+            wmdb.innerHTML = md(emojify(src));
+            wmdb.style.display = 'block';
+            web.style.display = 'none';
+          } else { // md mode -> edit mode
+            web.style.display = 'block';
+            wmdb.style.display = 'none';
+          }
+        });
+      });
     });
   }
 };

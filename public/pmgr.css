@@ -108,24 +108,27 @@ details[open] summary {
   position: absolute;
   top: 24px;
   right: 3px;
-  width: 60px;
+  width: 90px;
   height: 30px;
 }
 
-.window-actions button[aria-label="Edit"] {
+.window-actions button {
   margin-left: 2px;
-  background-image: url("icon/edit.png");
   background-repeat: no-repeat;
   background-position: top 3px left 4px;
   display: none;
 }
 
+.window-actions button[aria-label="Edit"] {
+  background-image: url("icon/edit.png");
+}
+
 .window-actions button[aria-label="Delete"] {
-  margin-left: 2px;
   background-image: url("icon/delete.png");
-  background-repeat: no-repeat;
-  background-position: top 3px left 4px;
-  display: none;
+}
+
+.window-actions button[aria-label="Pin"] {
+  background-image: url("icon/sticky.gif");
 }
 
 .window-actions button {
@@ -151,4 +154,8 @@ details[open] summary {
 
 .window-mdbox {
   font-family: "Lucida Sans Unicode", "Lucida Grande", sans-serif;
+}
+
+#check_del .field-row {
+  justify-content: flex-end;
 }
