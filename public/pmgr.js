@@ -48,23 +48,40 @@ let rid = x => x.slice(2)
 
 let log = console.log;
 
+let window_close_cb = (e) => {
+  del(find('.window#' + e.target.id));
+  let el = find('.tree-view-li#' + e.target.id)
+  if (el)
+    el.classList.toggle('opened');
+};
+
+let unfocus = () => {
+  let el = find('.focused');
+  if (el)
+    el.classList.remove('focused');
+};
+
 let create_window = (id, title, w=0, h=0) => {
   let d = dom('div',
-    dom('div',
-      dom('div', title || 'Untitled', {'class': 'title-bar-text'}) +
-      dom('div', dom('button', '', {'aria-label': 'Close'}), {'class': 'title-bar-controls'}),
-    {'class': 'title-bar', 'id': id}) +
-    dom('div', '&nbsp;', {'class': 'window-body'}) +
-    dom('div', '', {'class': 'window-resize', 'id': id}),
-  {'class': 'window window-center', 'id': id});
+           dom('div',
+             dom('div', title || 'Untitled', {'class': 'title-bar-text'}) +
+             dom('div',
+               dom('button', '', {'id': id, 'aria-label': 'Close'}),
+             {'class': 'title-bar-controls'}),
+           {'class': 'title-bar', 'id': id}) +
+           dom('div', '&nbsp;', {'class': 'window-body'}) +
+           dom('div', '', {'class': 'window-resize', 'id': id}),
+         {'class': 'window window-center focused', 'id': id});
+  unfocus();
   document.body.insertAdjacentHTML('beforeend', d);
   let el = find('.window#' + id);
-  on(find('.title-bar-controls button', el), 'click', (e) => {
-    del(el);
-    let mo = find('.tree-view-li#' + id);
-    if (mo)
-      mo.classList.toggle('opened');
+  on(el, 'mousedown', (e) => {
+    if (el.classList.contains('focused'))
+      return;
+    unfocus();
+    el.classList.add('focused');
   });
+  on(find('.title-bar-controls button', el), 'click', window_close_cb);
   if (w !== 0 && h !== 0) {
     el.style.width  = w + "px";
     el.style.height = h + "px";
@@ -147,6 +164,7 @@ let dupe = el => el.parentNode.replaceChild(el.cloneNode(true), el);
 let unmake_draggable = (el) => {
   dupe(find('.title-bar', el));
   dupe(find('.window-resize', el));
+  on(find('.title-bar-controls button', el), 'click', window_close_cb);
 };
 
 let menu_cb = (e) => {

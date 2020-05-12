@@ -74,6 +74,11 @@ details[open] summary {
   position: absolute;
   width: 640px;
   height: 480px;
+  z-index: 2;
+}
+
+.focused {
+  z-index: 3;
 }
 
 .window-center {
@@ -164,4 +169,9 @@ details[open] summary {
   top: 5px !important;
   left: unset !important;
   right: 5px !important;
+  z-index: 999;
+}
+
+#add_new {
+  z-index: 999;
 }
